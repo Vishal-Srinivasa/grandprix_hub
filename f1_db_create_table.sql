@@ -1,0 +1,201 @@
+use grandprix_hub;
+
+-- Create the Country table first, as it's referenced by multiple tables
+CREATE TABLE country (
+    country_code VARCHAR(3) PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    continent VARCHAR(100) NOT NULL
+);
+
+-- Create the Constructor table
+CREATE TABLE constructor (
+    constructor_id VARCHAR(100) PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    country_id VARCHAR(3) NOT NULL,
+    year_from INTEGER NOT NULL,
+    year_to INTEGER,
+    previous_next_constructor_id VARCHAR(100),
+    FOREIGN KEY (country_id) REFERENCES country(country_code),
+    FOREIGN KEY (previous_next_constructor_id) REFERENCES constructor(constructor_id)
+);
+
+-- Create the Circuit table
+CREATE TABLE circuit (
+    circuit_id VARCHAR(100) PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    type VARCHAR(6) NOT NULL,
+    place_name VARCHAR(100) NOT NULL,
+    country_id VARCHAR(3) NOT NULL,
+    latitude DECIMAL(10, 6) NOT NULL,
+    longitude DECIMAL(10, 6) NOT NULL,
+    FOREIGN KEY (country_id) REFERENCES country(country_code)
+);
+
+-- Create the Driver table
+CREATE TABLE driver (
+    driver_id VARCHAR(100) PRIMARY KEY,
+    abbreviation VARCHAR(3) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    permanent_number VARCHAR(2),
+    gender VARCHAR(6) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    date_of_death DATE,
+    place_of_birth VARCHAR(100) NOT NULL,
+    country_of_birth_id VARCHAR(3) NOT NULL,
+    nationality_country_id VARCHAR(3) NOT NULL,
+    FOREIGN KEY (country_of_birth_id) REFERENCES country(country_code),
+    FOREIGN KEY (nationality_country_id) REFERENCES country(country_code)
+);
+
+-- Create the Season table
+CREATE TABLE season (
+    year INTEGER PRIMARY KEY
+);
+
+-- Create the Race table
+CREATE TABLE race (
+    season INTEGER NOT NULL,
+    round INTEGER NOT NULL,
+    date DATE NOT NULL,
+    official_name VARCHAR(100) NOT NULL,
+    qualifying_format VARCHAR(20) NOT NULL,
+    circuit_id VARCHAR(100) NOT NULL,
+    course_length DECIMAL(6,3) NOT NULL,
+    laps INTEGER NOT NULL,
+    distance DECIMAL(6,3) NOT NULL,
+    PRIMARY KEY (season, round),
+    FOREIGN KEY (season) REFERENCES season(year),
+    FOREIGN KEY (circuit_id) REFERENCES circuit(circuit_id)
+);
+
+-- Create the season_constructor_driver table (junction table)
+CREATE TABLE season_constructor_driver (
+    season INTEGER NOT NULL,
+    constructor_id VARCHAR(100) NOT NULL,
+    driver_id VARCHAR(100) NOT NULL,
+    rounds VARCHAR(100),
+    test_driver BOOLEAN NOT NULL,
+    PRIMARY KEY (season, constructor_id, driver_id),
+    FOREIGN KEY (season) REFERENCES season(year),
+    FOREIGN KEY (constructor_id) REFERENCES constructor(constructor_id),
+    FOREIGN KEY (driver_id) REFERENCES driver(driver_id)
+);
+
+-- Create the driver_of_the_day_results table
+CREATE TABLE driver_of_the_day_results (
+    season INTEGER NOT NULL,
+    round INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    driver_id VARCHAR(100) NOT NULL,
+    constructor_id VARCHAR(100) NOT NULL,
+    percentage DECIMAL(4,1) NOT NULL,
+    PRIMARY KEY (season, round, position),
+    FOREIGN KEY (season, round) REFERENCES race(season, round),
+    FOREIGN KEY (driver_id) REFERENCES driver(driver_id),
+    FOREIGN KEY (constructor_id) REFERENCES constructor(constructor_id)
+);
+
+-- Create the free_practice_results table
+CREATE TABLE free_practice_results (
+    number INTEGER NOT NULL,
+    season INTEGER NOT NULL,
+    round INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    driver_id VARCHAR(100) NOT NULL,
+    constructor_id VARCHAR(100) NOT NULL,
+    time VARCHAR(8),
+    laps INTEGER,
+    PRIMARY KEY (season, round, number, position),
+    FOREIGN KEY (season, round) REFERENCES race(season, round),
+    FOREIGN KEY (driver_id) REFERENCES driver(driver_id),
+    FOREIGN KEY (constructor_id) REFERENCES constructor(constructor_id)
+);
+
+-- Create the race_results table
+CREATE TABLE race_results (
+    season INTEGER NOT NULL,
+    round INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    driver_id VARCHAR(100) NOT NULL,
+    constructor_id VARCHAR(100) NOT NULL,
+    laps INTEGER,
+    time VARCHAR(12),
+    time_penalty VARCHAR(6),
+    reason_retired VARCHAR(100),
+    points INTEGER NOT NULL,
+    grid_position INTEGER NOT NULL,
+    PRIMARY KEY (season, round, position),
+    FOREIGN KEY (season, round) REFERENCES race(season, round),
+    FOREIGN KEY (driver_id) REFERENCES driver(driver_id),
+    FOREIGN KEY (constructor_id) REFERENCES constructor(constructor_id)
+);
+
+-- Create the quali_results table
+CREATE TABLE quali_results (
+    season INTEGER NOT NULL,
+    round INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    driver_id VARCHAR(100) NOT NULL,
+    constructor_id VARCHAR(100) NOT NULL,
+    q1 VARCHAR(8),
+    q2 VARCHAR(8),
+    q3 VARCHAR(8),
+    laps INTEGER NOT NULL,
+    PRIMARY KEY (season, round, position),
+    FOREIGN KEY (season, round) REFERENCES race(season, round),
+    FOREIGN KEY (driver_id) REFERENCES driver(driver_id),
+    FOREIGN KEY (constructor_id) REFERENCES constructor(constructor_id)
+);
+
+-- Create the pit_stops table
+CREATE TABLE pit_stops (
+    season INTEGER NOT NULL,
+    round INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    driver_id VARCHAR(100) NOT NULL,
+    constructor_id VARCHAR(100) NOT NULL,
+    stop INTEGER NOT NULL,
+    lap INTEGER NOT NULL,
+    time VARCHAR(8) NOT NULL,
+    PRIMARY KEY (season, round, position),
+    FOREIGN KEY (season, round) REFERENCES race(season, round),
+    FOREIGN KEY (driver_id) REFERENCES driver(driver_id),
+    FOREIGN KEY (constructor_id) REFERENCES constructor(constructor_id)
+);
+
+-- Create the sprint_quali_results table
+CREATE TABLE sprint_quali_results (
+    season INTEGER NOT NULL,
+    round INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    driver_id VARCHAR(100) NOT NULL,
+    constructor_id VARCHAR(100) NOT NULL,
+    q1 VARCHAR(8),
+    q2 VARCHAR(8),
+    q3 VARCHAR(8),
+    laps INTEGER NOT NULL,
+    PRIMARY KEY (season, round, position),
+    FOREIGN KEY (season, round) REFERENCES race(season, round),
+    FOREIGN KEY (driver_id) REFERENCES driver(driver_id),
+    FOREIGN KEY (constructor_id) REFERENCES constructor(constructor_id)
+);
+
+-- Create the sprint_race_results table
+CREATE TABLE sprint_race_results (
+    season INTEGER NOT NULL,
+    round INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    driver_id VARCHAR(100) NOT NULL,
+    constructor_id VARCHAR(100) NOT NULL,
+    laps INTEGER,
+    time VARCHAR(12),
+    time_penalty VARCHAR(6),
+    reason_retired VARCHAR(100),
+    points INTEGER NOT NULL,
+    grid_position INTEGER NOT NULL,
+    PRIMARY KEY (season, round, position),
+    FOREIGN KEY (season, round) REFERENCES race(season, round),
+    FOREIGN KEY (driver_id) REFERENCES driver(driver_id),
+    FOREIGN KEY (constructor_id) REFERENCES constructor(constructor_id)
+);
