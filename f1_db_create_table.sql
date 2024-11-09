@@ -1,5 +1,7 @@
 use grandprix_hub;
 
+USE grandprix_hub;
+
 CREATE TABLE country (
     country_code VARCHAR(3) PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL,
@@ -185,3 +187,47 @@ CREATE TABLE sprint_race_results (
     FOREIGN KEY (driver_id) REFERENCES driver(driver_id),
     FOREIGN KEY (constructor_id) REFERENCES constructor(constructor_id)
 );
+
+CREATE TABLE user_credentials (
+    username VARCHAR(100) PRIMARY KEY,
+    password VARCHAR(100) NOT NULL,
+    role ENUM('user', 'admin') NOT NULL
+);
+
+CREATE USER 'grandprix_hub_admin'@'localhost' IDENTIFIED BY 'grandprix_hub_admin_password';
+
+GRANT ALL PRIVILEGES ON grandprix_hub.* TO 'grandprix_hub_admin'@'localhost';
+
+CREATE USER 'grandprix_hub_maintainer'@'localhost' IDENTIFIED BY 'grandprix_hub_maintainer_password';
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.country TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.constructor TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.circuit TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.driver TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.season TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.race TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.season_constructor_driver TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.driver_of_the_day_results TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.free_practice_results TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.race_results TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.quali_results TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.sprint_quali_results TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.sprint_race_results TO 'grandprix_hub_maintainer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON grandprix_hub.pit_stops TO 'grandprix_hub_maintainer'@'localhost';
+
+CREATE USER 'grandprix_hub_user'@'localhost' IDENTIFIED BY 'grandprix_hub_user_password';
+
+GRANT SELECT ON grandprix_hub.country TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.constructor TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.circuit TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.driver TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.season TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.race TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.season_constructor_driver TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.driver_of_the_day_results TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.free_practice_results TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.race_results TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.quali_results TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.sprint_quali_results TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.sprint_race_results TO 'grandprix_hub_user'@'localhost';
+GRANT SELECT ON grandprix_hub.pit_stops TO 'grandprix_hub_user'@'localhost';
