@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>F1 DB</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 450px;
+            height: 400px;
+            padding: 10%;
+            background-color: #E22420;
+            border-radius: 8px;
+            box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            padding-right: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #fcc;
+            border-radius: 4px;
+        }
+
+        .form-group button {
+            color: #E22420;
+            background-color: #ffffff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .form-group button:hover {
+            background-color: #faa;
+        }
+
+        .flex-con {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            align-items: center;
+            align-content: center;
+            gap: 2.5%;
+            padding: 5%;
+            margin-right: 10%;
+        }
+
+        .tab {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+            align-content: center;
+            margin-right: 10%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useEffect } = React;
+
+        function App() {
+            useEffect(() => {
+                const element = document.getElementById('signinForm');
+                if (element) {
+                    element.addEventListener('submit', function (event) {
+                        event.preventDefault();
+                        const username = document.getElementById('username1').value;
+                        localStorage.setItem('username', username);
+                        this.submit();
+                    });
+                }
+            }, []);
+
+            return (
+                <div className="flex-con">
+                    <div className="tab">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/F1_%28registered_trademark%29.svg/1024px-F1_%28registered_trademark%29.svg.png" alt="Placeholder Image" />
+                    </div>
+                    <div>
+                        <div className="container">
+                            <h2>Sign In</h2>
+                            <form id="signinForm" action="/maintainer_signin" method="POST">
+                                <div className="form-group">
+                                    <label htmlFor="username1">Username:</label>
+                                    <input type="text" id="username1" name="username" placeholder="Enter your username" />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="password1">Password:</label>
+                                    <input type="password" id="password1" name="password" placeholder="Enter your password" />
+                                </div>
+                                <div className="form-group">
+                                    <button type="submit">Sign In</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
