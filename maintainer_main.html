@@ -1,0 +1,92 @@
+<html>
+    <head>
+        <title>F1 DB</title>
+        <style>
+            .hyper {
+                padding: 15px;
+                background-color: #E22420;
+            }
+            a {
+                margin: 1.5%;
+                text-decoration: none;
+                color: white;
+            }
+            .flex-con {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-evenly;
+                align-items: stretch;
+                align-content: stretch;
+                gap: 2.5%;
+                padding: 5%;
+            }
+            .tab {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-evenly;
+                align-items: stretch;
+                align-content: stretch;
+                width: 45%;
+                margin: auto;
+            }
+            button {
+                font-size: 25px;
+                background-color: #E22420;
+                color: white;
+                margin: 5%;
+                padding: 15%;
+            }
+            .out {
+                margin-left: 88%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="hyper">
+            <a href="./maintainer_main.html">Home</a>
+            <a class="out" href="./login_signup.html">Sign out</a>
+        </div>
+
+        <div id="main" class="flex-con">
+            <div class="tab">
+                <button>Insert</button>
+                <button>Delete</button>
+            </div>
+            <div class="tab">
+                <button>Update</button>
+                <button>Generate</button>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function callEndpoint(endpoint) {
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+
+            function setupButtonListeners() {
+                console.log("Setting up button listeners...");
+                document.querySelectorAll("button").forEach(button => {
+                    button.addEventListener("click", () => {
+                        const action = button.textContent.toLowerCase();
+                        console.log(`Calling endpoint: /${action}`);
+                        callEndpoint(`/${action}`);
+                    });
+                });
+            }
+
+            document.addEventListener("DOMContentLoaded", setupButtonListeners);
+        </script>
+    </body>
+</html>
