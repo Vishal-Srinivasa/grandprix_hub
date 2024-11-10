@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Insert Data</title>
+</head>
+<body>
+    <h2>Insert Data into {{ table_name }}</h2>
+    <form method="POST" action="/insert">
+        <input type="hidden" name="table_name" value="{{ table_name }}">
+        <input type="hidden" name="column_names" value="{{ column_names }}">
+        <table>
+            <thead>
+                <tr>
+                    {% for column in column_names %}
+                        <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for column in column_names %}
+                        <td><input type="text" name="{{ column }}"></td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <input type="submit" value="Insert">
+    </form>
+</body>
+</html>
