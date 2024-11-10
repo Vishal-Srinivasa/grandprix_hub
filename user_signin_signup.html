@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <title>F1 DB</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
@@ -12,6 +13,7 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
+            color:#ffffff;
             margin: 0;
             padding: 0;
             display: flex;
@@ -23,8 +25,8 @@
         .container {
             width: 450px;
             height: 400px;
-            padding: 30px;
-            background-color: #ffffff;
+            padding: 10%;
+            background-color: #E22420;
             border-radius: 8px;
             box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.1);
         }
@@ -41,14 +43,18 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            background-color: #007bff;
-            color: #ffffff;
+            background-color: #ffffff;
+            color: #E22420;
             font-size: 16px;
             transition: background-color 0.3s ease;
         }
 
         .tab-btns button.active {
-            background-color: #0056b3;
+            background-color: #fcc;
+        }
+
+        .tab-btns button:hover {
+            background-color: #faa;
         }
 
         .signin-container,
@@ -58,6 +64,7 @@
 
         .form-group {
             margin-bottom: 20px;
+            padding-right: 20px;
         }
 
         .form-group label {
@@ -72,21 +79,39 @@
             width: 100%;
             padding: 12px;
             font-size: 16px;
-            border: 1px solid #ccc;
+            border: 1px solid #fcc;
             border-radius: 4px;
         }
 
         .form-group button {
-            color: #ffffff;
-            background-color: #007bff;
+            color: #E22420;
+            background-color: #ffffff;
             border: none;
             cursor: pointer;
             margin-top: 20px;
             transition: background-color 0.3s ease;
+            margin-left: 10px;
         }
-
         .form-group button:hover {
-            background-color: #0056b3;
+            background-color: #faa;
+        }
+        .flex-con{
+            display:flex;
+            flex-direction:row;
+            justify-content:space-evenly;
+            align-items:center;
+            align-content:center;
+            gap:2.5%;
+            padding:5%;
+            margin-right:10%;
+        }
+        .tab{
+            display:flex;
+            flex-direction:column;
+            justify-content:space-evenly;
+            align-items:center;
+            align-content:center;		
+            margin-right:10%;
         }
     </style>
 </head>
@@ -129,6 +154,11 @@
             }, []);
 
             return (
+            <div class="flex-con">
+                <div class="tab">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/F1_%28registered_trademark%29.svg/1024px-F1_%28registered_trademark%29.svg.png" alt="Placeholder Image" />
+                </div>
+            <div>
             <div class="container">
                 <div class="tab-btns">
                     <button className={activeTab === 'signin' ? 'active' : ''} onClick={() => switchTab('signin')}>Sign In</button>
@@ -172,6 +202,8 @@
                         </form>
                     </div>
                 ) : null}
+            </div>
+            </div>
             </div>
         );
         }
