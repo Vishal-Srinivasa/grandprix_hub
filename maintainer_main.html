@@ -80,13 +80,19 @@
                 document.querySelectorAll("button").forEach(button => {
                     button.addEventListener("click", () => {
                         const action = button.textContent.toLowerCase();
-                        console.log(`Calling endpoint: /${action}`);
-                        callEndpoint(`/${action}`);
+                        if (action === "generate") {
+                            console.log("Calling endpoint: /generate");
+                            callEndpoint("/generate");
+                        } else {
+                            const buttonText = button.textContent;
+                            window.location.href = `./select_table.html?method=${encodeURIComponent(buttonText)}`;
+                        }
                     });
                 });
             }
 
             document.addEventListener("DOMContentLoaded", setupButtonListeners);
+
         </script>
     </body>
 </html>
