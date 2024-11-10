@@ -80,7 +80,7 @@
                 formData[input.name] = input.value;
             });
 
-            const response = await fetch('/submit_data', {
+            const response = await fetch('/insert', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
