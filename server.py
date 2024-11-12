@@ -36,7 +36,7 @@ maintainer_cursor = maintainer_db.cursor()
 user_db = mysql.connector.connect(host='localhost', user='grandprix_hub_user', passwd=os.environ["user_passwd"], database = 'grandprix_hub')
 user_cursor = user_db.cursor()
 
-@app.route('/login_signup')
+@app.route('/')
 def login_signup():
     return render_template('login_signup.html')
 
@@ -144,4 +144,6 @@ def delete(table_name, column_names, values):
     condition = " and ".join(condition)
     maintainer_cursor.execute("delete from {} where {}".format(table_name, condition))
 
+if __name__ == '__main__':
+    app.run(debug=True)
     
