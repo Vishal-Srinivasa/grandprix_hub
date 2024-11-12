@@ -91,22 +91,57 @@ def maintainer_main():
     return render_template('maintainer_main.html')
 
 
-@app.route('/select_table')
+@app.route('/manipulation')
+def manipulation():
+    return render_template('manipulation.html')
+
+
+@app.route('/select_table_insert')
 def select_table(table_name):
     maintainer_cursor.execute("show columns from {}".format(table_name))
     columns = maintainer_cursor.fetchall()
     column_names = [column[0] for column in columns]
+    print(column_names)
     return render_template('insert.html', column_names = column_names, table_name = table_name)
 
+@app.route('/select_table_update')
+def select_table(table_name):
+    maintainer_cursor.execute("show columns from {}".format(table_name))
+    columns = maintainer_cursor.fetchall()
+    column_names = [column[0] for column in columns]
+    print(column_names)
+    return render_template('update.html', column_names = column_names, table_name = table_name)
 
-@app.route('/insert', methods = ['POST'])
-def insert():
-    table_name = request.form['table_name']
-    column_names = request.form['column_names']
-    values = request.form['values']
-    maintainer_cursor.execute("insert into {} ({}) values ({})".format(table_name, column_names, values))
+
+@app.route('/select_table_delete')
+def select_table(table_name):
+    maintainer_cursor.execute("show columns from {}".format(table_name))
+    columns = maintainer_cursor.fetchall()
+    column_names = [column[0] for column in columns]
+    print(column_names)
+    return render_template('delete.html', column_names = column_names, table_name = table_name)
+
+
+@app.route('/insert')
+def insert(table_name, column_names, values):
+    for i in range(len(column_names)):
+        if values[i] == '':
+            values.pop(i)
+            column_names.pop(i)
+    maintainer_cursor.execute("insert into {} ({}) values ({})".format(table_name, column_names, values))   #trigger to check if insert is valid
     valid_insert = maintainer_cursor.fetchall()[0][0]
     if valid_insert == 1:  
         maintainer_cursor.commit()
     else:
         maintainer_cursor.rollback()
+    return render_template('insert.html', column_names = column_names, table_name = table_name)
+
+@app.route('/delete')
+def delete(table_name, column_names, values):
+    condition = []
+    for i in range(len(column_names)):
+        condition.append(column_names[i] + " = " + values[i])
+    condition = " and ".join(condition)
+    maintainer_cursor.execute("delete from {} where {}".format(table_name, condition))
+
+    
