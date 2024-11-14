@@ -172,9 +172,14 @@ def delete(table_name, column_names, values):
         maintainer_cursor.rollback()
         message = "Record not found"
     return render_template('delete.html', column_names = column_names, table_name = table_name, message = message)
-
-@app.route('/update')
-def update(table_name, column_names, values,condition_column_names, condition_values):
+    
+@app.route('/update', methods = ['POST'])
+def update():
+    table_name = request.form['table_name']
+    column_names = request.form['column_names'].split(',')
+    values = request.form['values'].split(',')
+    condition_column_names = request.form['condition_column_names'].split(',')
+    condition_values = request.form['condition_values'].split(',')
     condition = []
     new_set = []
     for i in range(len(condition_column_names)):
