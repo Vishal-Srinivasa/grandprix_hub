@@ -39,6 +39,22 @@
             .out {
                 margin-left: 88%;
             }
+            .tables-container {
+                display: flex;
+                justify-content: space-around;
+            }
+            table {
+                border-collapse: collapse;
+                width: 45%;
+            }
+            th, td {
+                padding: 8px;
+                text-align: left;
+                border: 1px solid #ddd;
+            }
+            th {
+                background-color: #fcc;
+            }
         </style>
     </head>
     <body>
@@ -46,7 +62,7 @@
             <a href="./user_main">Home</a>
             <a class="out" href="./">Sign out</a>
         </div>
-        <div>
+        <div class="flex-con">
             <div class="tab">
                 <div>
                     <button>Click Me</button>
@@ -88,8 +104,48 @@
                     <button>Click Me</button>
                 </div>
             </div>
-        </div>
+    <div class="tables-container">
+        <!-- Driver Championship Table -->
+        <table>
+            <caption>Driver Championship</caption>
+            <thead>
+                <tr>
+                    <th>Driver</th>
+                    <th>Points</th>
+                    <th>Team</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for driver in driver_championship %}
+                <tr>
+                    <td>{{ driver.driver }}</td>
+                    <td>{{ driver.points }}</td>
+                    <td>{{ driver.team }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
+        <!-- Constructor Championship Table -->
+        <table>
+            <caption>Constructor Championship</caption>
+            <thead>
+                <tr>
+                    <th>Team</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for constructor in constructor_championship %}
+                <tr>
+                    <td>{{ constructor.team }}</td>
+                    <td>{{ constructor.points }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+        </div>
         <script type="text/javascript">
 
 
