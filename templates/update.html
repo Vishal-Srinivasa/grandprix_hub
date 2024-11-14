@@ -1,61 +1,175 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dynamic Form</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Data</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            background-color: #fcc;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        .alert {
+            display: none;
+            margin-top: 1rem;
+        }
+        .btn-primary {
+            background-color: #E22420;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #E22420;
+            color: white;
+        }
+        .hyper {
+            padding: 15px;
+            background-color: #E22420;
+        }
+        a {
+            margin: 1.5%;
+            text-decoration: none;
+            color: white;
+        }
+        .out {
+            margin-left: 80%;
+        }
+    </style>
 </head>
 <body>
-    <h1>Dynamic Form</h1>
-    <form id="myForm" action="/insert" method="POST">
-        <div id="form-fields"></div>
-        <input type="submit" value="Submit">
-    </form>
-    
+    <div class="hyper">
+        <a href="./maintainer_main">Home</a>
+        <a href='/view_table/{{ table_name }}'>View Table</a>
+        <a class="out" href="./">Sign out</a>
+    </div>
+    <div class="container">
+        <div class="form-container">
+            <h2 class="mb-4">Update Data in {{ table_name }}</h2>
+            
+            <!-- Success/Error Messages -->
+            <div id="successAlert" class="alert alert-success" role="alert">
+                Data updated successfully!
+            </div>
+            <div id="errorAlert" class="alert alert-danger" role="alert">
+                Error occurred while updating data.
+            </div>
+
+            <form id="updateForm" action="{{ url_for('update') }}" method="POST">
+                <input type="hidden" name="table_name" value="{{ table_name }}">
+                
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Column Name</th>
+                                <th>Match Value</th>
+                                <th>New Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for column_name in column_names %}
+                            <tr>
+                                <td>{{ column_name }}</td>
+                                <td>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="match_{{ column_name }}" 
+                                           data-column="{{ column_name }}"
+                                           placeholder="Match value">
+                                </td>
+                                <td>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="new_{{ column_name }}" 
+                                           data-column="{{ column_name }}"
+                                           placeholder="New value">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="submit" class="btn btn-primary">Update Data</button>
+                    <a href="/select_update" class="btn btn-secondary">Back to Tables</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        $(document).ready(function() {
-            // Assuming column_names is a JavaScript array containing the column names
-            var columnNames = { column_names | tojson };
-    
-            // Create input fields dynamically
-            $.each(columnNames, function(index, column) {
-                $('#form-fields').append(
-                    '<label for="' + column + '">' + column + ':</label>' +
-                    '<input type="text" id="' + column + '" name="' + column + '" required><br>'
-                );
+        document.getElementById('updateForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('table_name', '{{ table_name }}');
+            
+            // Get all input fields
+            const rows = document.querySelectorAll('tbody tr');
+            let matchColumns = [];
+            let matchValues = [];
+            let updateColumns = [];
+            let updateValues = [];
+            
+            // Collect match and update values
+            rows.forEach(row => {
+                const column = row.querySelector('td').textContent;
+                const matchInput = row.querySelector('input[id^="match_"]');
+                const newInput = row.querySelector('input[id^="new_"]');
+                
+                if (matchInput.value.trim()) {
+                    matchColumns.push(column);
+                    matchValues.push(matchInput.value.trim());
+                }
+                
+                if (newInput.value.trim()) {
+                    updateColumns.push(column);
+                    updateValues.push(newInput.value.trim());
+                }
             });
-        });
-    </script>
-    <script>
-        // Assuming you have a script tag in your HTML to include this JavaScript
-        $(document).ready(function() {
-            // You can add more validation or customization here if needed
-            $("#myForm").submit(function(event) {
-                // Prevent default form submission
-                event.preventDefault();
-
-                // Collect form data
-                var formData = {};
-                $(this).serializeArray().forEach(function(input) {
-                    formData[input.name] = input.value;
-                });
-
-                // Send data to the Flask endpoint using AJAX
-                $.ajax({
-                    type: "POST",
-                    url: "/insert",
-                    data: JSON.stringify(formData),
-                    contentType: "application/json; charset=utf-8",
-                    success: function(response) {
-                        // Handle successful response
-                        console.log(response);
-                        // You can display a success message or redirect to another page
-                    },
-                    error: function(error) {
-                        // Handle errors
-                        console.error(error);
-                        // You can display an error message to the user
-                    }
-                });
+            
+            // Add the values to formData
+            formData.append('column_names', updateColumns.join(','));
+            formData.append('values', updateValues.join(','));
+            formData.append('condition_column_names', matchColumns.join(','));
+            formData.append('condition_values', matchValues.join(','));
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const successAlert = document.getElementById('successAlert');
+                const errorAlert = document.getElementById('errorAlert');
+                
+                if (data.success) {
+                    successAlert.style.display = 'block';
+                    errorAlert.style.display = 'none';
+                    successAlert.textContent = data.message;
+                    // Clear form after successful update
+                    this.reset();
+                } else {
+                    errorAlert.style.display = 'block';
+                    successAlert.style.display = 'none';
+                    errorAlert.textContent = data.message;
+                }
+                
+                // Hide alerts after 3 seconds
+                setTimeout(() => {
+                    successAlert.style.display = 'none';
+                    errorAlert.style.display = 'none';
+                }, 3000);
+            })
+            .catch(error => {
+                document.getElementById('errorAlert').style.display = 'block';
+                document.getElementById('errorAlert').textContent = 'An error occurred while processing your request.';
             });
         });
     </script>
