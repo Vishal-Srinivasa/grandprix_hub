@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Dynamic Form</h1>
+    <form id="myForm" action="/insert" method="POST">
+        <div id="form-fields"></div>
+        <input type="submit" value="Submit">
+    </form>
+    
+    <script>
+        $(document).ready(function() {
+            // Assuming column_names is a JavaScript array containing the column names
+            var columnNames = { column_names | tojson };
+    
+            // Create input fields dynamically
+            $.each(columnNames, function(index, column) {
+                $('#form-fields').append(
+                    '<label for="' + column + '">' + column + ':</label>' +
+                    '<input type="text" id="' + column + '" name="' + column + '" required><br>'
+                );
+            });
+        });
+    </script>
+    <script>
+        // Assuming you have a script tag in your HTML to include this JavaScript
+        $(document).ready(function() {
+            // You can add more validation or customization here if needed
+            $("#myForm").submit(function(event) {
+                // Prevent default form submission
+                event.preventDefault();
+
+                // Collect form data
+                var formData = {};
+                $(this).serializeArray().forEach(function(input) {
+                    formData[input.name] = input.value;
+                });
+
+                // Send data to the Flask endpoint using AJAX
+                $.ajax({
+                    type: "POST",
+                    url: "/insert",
+                    data: JSON.stringify(formData),
+                    contentType: "application/json; charset=utf-8",
+                    success: function(response) {
+                        // Handle successful response
+                        console.log(response);
+                        // You can display a success message or redirect to another page
+                    },
+                    error: function(error) {
+                        // Handle errors
+                        console.error(error);
+                        // You can display an error message to the user
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -20,7 +20,17 @@
             align-items: center;
             height: 100vh;
         }
-
+        .hyper{
+            text-align:center;
+            padding:15px;
+            background-color:#E22420;
+            width:40px;
+        }
+        a{
+            margin:1.5%;
+            text-decoration:none;
+            color:white;
+        }
         .container {
             width: 450px;
             height: 400px;
@@ -107,6 +117,10 @@
             }, []);
 
             return (
+                <div>
+                    <div class="hyper">
+                        <a href="./">Back</a>
+                    </div>
                 <div className="flex-con">
                     <div className="tab">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/F1_%28registered_trademark%29.svg/1024px-F1_%28registered_trademark%29.svg.png" alt="Placeholder Image" />
@@ -114,7 +128,7 @@
                     <div>
                         <div className="container">
                             <h2>Sign In</h2>
-                            <form id="signinForm" action="/maintainer_signin" method="POST">
+                            <form id="signinForm" action="maintainer_sign_in" method="POST">
                                 <div className="form-group">
                                     <label htmlFor="username1">Username:</label>
                                     <input type="text" id="username1" name="username" placeholder="Enter your username" />
@@ -129,6 +143,7 @@
                             </form>
                         </div>
                     </div>
+                </div>
                 </div>
             );
         }

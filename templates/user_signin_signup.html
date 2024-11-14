@@ -10,6 +10,12 @@
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
+        .hyper{
+            text-align:center;
+            padding:15px;
+            background-color:#E22420;
+            width:40px;
+        }
         body {
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
@@ -21,7 +27,11 @@
             align-items: center;
             height: 100vh;
         }
-
+        a{
+            margin:1.5%;
+            text-decoration:none;
+            color:white;
+        }
         .container {
             width: 450px;
             height: 400px;
@@ -136,6 +146,7 @@
                         event.preventDefault();
                         const username = document.getElementById('username1').value;
                         localStorage.setItem('username', username);
+                        localStorage.setItem('password', document.getElementById('password1').value);
                         this.submit();
                     });
                 }
@@ -148,12 +159,17 @@
                         event.preventDefault();
                         const username = document.getElementById('username2').value;
                         localStorage.setItem('username', username);
+                        localStorage.setItem('password', document.getElementById('password1').value);
                         this.submit();
                     });
                 }
             }, []);
 
             return (
+            <div>
+            <div class="hyper">
+                <a href="./">Back</a>
+            </div>
             <div class="flex-con">
                 <div class="tab">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/F1_%28registered_trademark%29.svg/1024px-F1_%28registered_trademark%29.svg.png" alt="Placeholder Image" />
@@ -202,6 +218,7 @@
                         </form>
                     </div>
                 ) : null}
+            </div>
             </div>
             </div>
             </div>

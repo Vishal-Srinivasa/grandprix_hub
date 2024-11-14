@@ -43,8 +43,8 @@
     </head>
     <body>
         <div class="hyper">
-            <a href="./maintainer_main.html">Home</a>
-            <a class="out" href="./login_signup.html">Sign out</a>
+            <a href="./maintainer_main">Home</a>
+            <a class="out" href="./">Sign out</a>
         </div>
 
         <div id="main" class="flex-con">
@@ -84,8 +84,7 @@
                             console.log("Calling endpoint: /generate");
                             callEndpoint("/generate");
                         } else {
-                            const buttonText = button.textContent;
-                            window.location.href = `./select_table.html?method=${encodeURIComponent(buttonText)}`;
+                            window.location.href = `select_${action}`;
                         }
                     });
                 });
