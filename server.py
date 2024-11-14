@@ -1,13 +1,6 @@
 import mysql.connector
 import os
-import chromadb
-from llama_index.embeddings.gemini import GeminiEmbedding
-from llama_index.core import Settings, VectorStoreIndex, SimpleDirectoryReader, StorageContext
-from llama_index.llms.gemini import Gemini
-from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.core.retrievers import VectorIndexRetriever
-from llama_index.core.node_parser import CodeSplitter
-from llama_index.core import PromptTemplate
+from llama_index import GPTSQLStructStoreIndex, SQLDatabase
 from flask_bcrypt import Bcrypt
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from threading import Thread
@@ -33,8 +26,12 @@ admin_cursor = admin_db.cursor()
 maintainer_db = mysql.connector.connect(host='localhost', user='grandprix_hub_maintainer', passwd=os.environ["maintainer_passwd"], database = 'grandprix_hub')
 maintainer_cursor = maintainer_db.cursor()
 
+maintainer_sql_database = SQLDatabase(maintainer_db)
+
 user_db = mysql.connector.connect(host='localhost', user='grandprix_hub_user', passwd=os.environ["user_passwd"], database = 'grandprix_hub')
 user_cursor = user_db.cursor()
+
+user_sql_database = SQLDatabase(user_db)
 
 @app.route('/')
 def login_signup():
