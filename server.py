@@ -9,7 +9,7 @@ from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.core.node_parser import CodeSplitter
 from llama_index.core import PromptTemplate
 from flask_bcrypt import Bcrypt
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from threading import Thread
 
 os.environ["GOOGLE_API_KEY"] = ""
@@ -20,8 +20,8 @@ os.environ["secret_key"] = "secret_key"
 
 app = Flask(__name__)
 
-app.jinja_env.variable_start_string = '[['
-app.jinja_env.variable_end_string = ']]'
+app.jinja_env.variable_start_string = '{{'
+app.jinja_env.variable_end_string = '}}'
 
 app.config['SECRET_KEY'] = os.environ["secret_key"]
 
@@ -40,18 +40,24 @@ user_cursor = user_db.cursor()
 def login_signup():
     return render_template('login_signup.html')
 
+@app.route('/user_signin_signup')
+def user_signin_signup():
+    return render_template('user_signin_signup.html')
+
+@app.route('/maintainer_signin')
+def maintainer_signin():
+    return render_template('maintainer_signin.html')
 
 @app.route('/user_sign_in', methods = ['POST'])
 def user_sign_in():
     username = request.form['username']
     password = request.form['password']
-    encrypted_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    admin_cursor.execute("select count(*) from user_credentials where username = '{}' and password = '{}'".format(username, encrypted_password))
-    user_exists = admin_cursor.fetchall()[0][0]
-    if user_exists == 1:
+    admin_cursor.execute("select password from maintainer_credentials where username = '{}'".format(username))
+    real_password = admin_cursor.fetchall()[0][0]
+    if bcrypt.check_password_hash(real_password, password):
         return redirect(url_for('user_main'))
     else:
-        return redirect(url_for('login_signup'))
+        return redirect('/user_signin_signup')
 
 
 @app.route('/user_sign_up', methods = ['POST'])
@@ -59,11 +65,11 @@ def user_sign_up():
     username = request.form['username']
     password = request.form['password']
     encrypted_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    admin_cursor.execute("insert into user_credentials ( '{}' , '{}' )".format(username, encrypted_password))    #trigger to check if user exists
+    admin_cursor.execute("insert into user_credentials values( '{}' , '{}' , 'user');".format(username, encrypted_password))    #trigger to check if user exists
     user_exists = admin_cursor.fetchall()[0][0]
     if user_exists == 1:
         admin_cursor.rollback()
-        return redirect(url_for('login_signup'))
+        return redirect('/user_signin_signup')
     else:
         admin_cursor.commit()
         return redirect(url_for('user_main'))
@@ -73,13 +79,12 @@ def user_sign_up():
 def maintainer_sign_in():
     username = request.form['username']
     password = request.form['password']
-    encrypted_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    admin_cursor.execute("select count(*) from maintainer_credentials where username = '{}' and password = '{}'".format(username, encrypted_password))
-    user_exists = admin_cursor.fetchall()[0][0]
-    if user_exists == 1:
+    admin_cursor.execute("select password from maintainer_credentials where username = '{}'".format(username))
+    real_password = admin_cursor.fetchall()[0][0]
+    if bcrypt.check_password_hash(real_password, password):
         return redirect(url_for('maintainer_main'))
     else:
-        return redirect(url_for('login_signup'))
+        return redirect('/maintainer_signin')
 
 
 @app.route('/user_main')
@@ -95,35 +100,51 @@ def maintainer_main():
 def manipulation():
     return render_template('manipulation.html')
 
+@app.route('/select_insert')
+def select_insert():
+    return render_template('select_table_insert.html')
 
-@app.route('/select_table_insert')
-def select_table(table_name):
+@app.route('/select_update')
+def select_update():
+    return render_template('select_table_update.html')
+
+@app.route('/select_delete')
+def select_delete():
+    return render_template('select_table_delete.html')
+
+@app.route('/select_table_insert', methods = ['POST'])
+def select_table_insert():
+    table_name = request.form['table_name']
     maintainer_cursor.execute("show columns from {}".format(table_name))
     columns = maintainer_cursor.fetchall()
     column_names = [column[0] for column in columns]
     print(column_names)
-    return render_template('insert.html', column_names = column_names, table_name = table_name)
+    return render_template('insert.html', column_names=column_names, table_name=table_name)
 
-@app.route('/select_table_update')
-def select_table(table_name):
+@app.route('/select_table_update' , methods = ['POST'])
+def select_table_update():
+    table_name = request.form['table_name']
     maintainer_cursor.execute("show columns from {}".format(table_name))
     columns = maintainer_cursor.fetchall()
     column_names = [column[0] for column in columns]
     print(column_names)
-    return render_template('update.html', column_names = column_names, table_name = table_name)
+    return render_template('update.html', column_names=column_names, table_name=table_name)
 
-
-@app.route('/select_table_delete')
-def select_table(table_name):
+@app.route('/select_table_delete', methods = ['POST'])
+def select_table_delete():
+    table_name = request.form['table_name']
     maintainer_cursor.execute("show columns from {}".format(table_name))
     columns = maintainer_cursor.fetchall()
     column_names = [column[0] for column in columns]
     print(column_names)
-    return render_template('delete.html', column_names = column_names, table_name = table_name)
+    return render_template('delete.html', column_names=column_names, table_name=table_name)
 
 
-@app.route('/insert')
-def insert(table_name, column_names, values):
+@app.route('/insert', methods = ['POST'])
+def insert():
+    table_name = request.form['table_name']
+    column_names = request.form['column_names'].split(',')
+    values = request.form['values'].split(',')
     for i in range(len(column_names)):
         if values[i] == '':
             values.pop(i)
@@ -135,6 +156,7 @@ def insert(table_name, column_names, values):
     else:
         maintainer_cursor.rollback()
     return render_template('insert.html', column_names = column_names, table_name = table_name)
+
 
 @app.route('/delete')
 def delete(table_name, column_names, values):
