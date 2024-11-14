@@ -140,9 +140,43 @@ def insert(table_name, column_names, values):
 def delete(table_name, column_names, values):
     condition = []
     for i in range(len(column_names)):
+        if type(values[i]) == str:
+            values[i] = "'{}'".format(values[i])
         condition.append(column_names[i] + " = " + values[i])
     condition = " and ".join(condition)
     maintainer_cursor.execute("delete from {} where {}".format(table_name, condition))
+    valid_delete = maintainer_cursor.fetchall()[0][0]
+    if valid_delete == 1:
+        maintainer_cursor.commit()
+        message = "Record deleted successfully"
+    else:
+        maintainer_cursor.rollback()
+        message = "Record not found"
+    return render_template('delete.html', column_names = column_names, table_name = table_name, message = message)
+
+@app.route('/update')
+def update(table_name, column_names, values,condition_column_names, condition_values):
+    condition = []
+    new_set = []
+    for i in range(len(condition_column_names)):
+        if type(condition_values[i]) == str:
+            condition_values[i] = "'{}'".format(condition_values[i])
+        condition.append(condition_column_names[i] + " = " + condition_values[i])
+    condition = " and ".join(condition)
+    for i in range(len(column_names)):
+        if type(values[i]) == str:
+            values[i] = "'{}'".format(values[i])
+        new_set.append(column_names[i] + " = " + values[i])
+    new_set = " , ".join(new_set)
+    maintainer_cursor.execute("update {} set {} where {}".format(table_name, new_set, condition))
+    valid_update = maintainer_cursor.fetchall()[0][0]
+    if valid_update == 1:
+        maintainer_cursor.commit()
+        message = "Record updated successfully"
+    else:
+        maintainer_cursor.rollback()
+        message = "Record not found"
+    return render_template('update.html', column_names = column_names, table_name = table_name, message = message)
 
 if __name__ == '__main__':
     app.run(debug=True)
