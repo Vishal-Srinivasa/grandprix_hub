@@ -7,6 +7,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .form-container {
+            background-color: #fcc;
             max-width: 800px;
             margin: 2rem auto;
             padding: 20px;
@@ -17,19 +18,42 @@
             display: none;
             margin-top: 1rem;
         }
+        .btn-primary {
+            background-color: #E22420;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #E22420;
+            color: white;
+        }
+        .hyper {
+            padding: 15px;
+            background-color: #E22420;
+        }
+        a {
+            margin: 1.5%;
+            text-decoration: none;
+            color: white;
+        }
+        .out {
+            margin-left: 70%;
+        }
     </style>
 </head>
 <body>
+    <div class="hyper">
+        <a href="./maintainer_main">Home</a>
+        <a href='/view_table/{{ table_name }}'>View Table</a>
+        <a class="out" href="./">Sign out</a>
+    </div>
     <div class="container">
         <div class="form-container">
             <h2 class="mb-4">Insert Data into {{ table_name }}</h2>
             
             <!-- Success/Error Messages -->
             <div id="successAlert" class="alert alert-success" role="alert">
-                Data inserted successfully!
             </div>
             <div id="errorAlert" class="alert alert-danger" role="alert">
-                Error occurred while inserting data.
             </div>
 
             <form id="insertForm" action="{{ url_for('insert') }}" method="POST">
@@ -48,7 +72,7 @@
 
                 <div class="d-flex justify-content-between">
                     <button type="submit" class="btn btn-primary">Insert Data</button>
-                    <a href="/select_delete" class="btn btn-secondary">Back to Tables</a>
+                    <a href="/select_insert" class="btn btn-secondary">Back to Tables</a>
                 </div>
             </form>
         </div>
@@ -92,7 +116,6 @@
                     successAlert.style.display = 'block';
                     errorAlert.style.display = 'none';
                     successAlert.textContent = data.message;
-                    // Clear form after successful insertion
                     this.reset();
                 } else {
                     errorAlert.style.display = 'block';

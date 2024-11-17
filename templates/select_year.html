@@ -47,7 +47,7 @@
                 width: 100%;
             }
             .out {
-                margin-left: 80%;
+                margin-left: 88%;
             }
             .tables-container {
                 display: flex;
@@ -73,8 +73,8 @@
     </head>
     <body>
         <div class="hyper">
-            <a href="./user_main">Home</a>
-            <a class="out" href="./">Sign out</a>
+            <a href="../user_main">Home</a>
+            <a class="out" href="../">Sign out</a>
         </div>
         <div class="flex-con">
             <div class="tab">
@@ -125,93 +125,90 @@
                 </div>
             </div>
             <div class="tab1">
+                <!-- Year selection form -->
                 <form method="POST" id="year-form">
                     <label for="year">Select Year:</label>
-                    <select name="year" id="year" onchange="fetchChampionshipPoints(this.value);">
+                    <select name="year" id="year" onchange="fetchRounds(this.value)">
                         <option value="" disabled selected>Select Year</option>
-                        {% for year in available_years %}
-                            <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                        {% for year in years %}
+                            <option value="{{ year }}">{{ year }}</option>
                         {% endfor %}
                     </select>
-                </form>
-                <div class="tables-container">
-                    <table id="constructor-championship">
-                        <caption>Constructor Championship</caption>
-                        <thead>
-                            <tr>
-                                <th>Position</th>
-                                <th>Constructor ID</th>
-                                <th>Points</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
 
-                    <!-- Driver Championship Table -->
-                    <table id="driver-championship">
-                        <caption>Driver Championship</caption>
-                        <thead>
-                            <tr>
-                                <th>Position</th>
-                                <th>Driver ID</th>
-                                <th>Constructor ID</th>
-                                <th>Points</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+                    <!-- Dropdown for rounds (initially hidden) -->
+                    <div id="round-container" style="display: none; margin-top: 10px;">
+                        <label for="round">Select Round:</label>
+                        <select name="round" id="round" onchange="fetchColumns()">
+                            <option value="" disabled selected>Select Round</option>
+                        </select>
+                    </div>
+                </form>
+
+                <!-- Placeholder for displaying the columns and data -->
+                <div id="data-container" style="margin-top: 20px;"></div>
             </div>
         </div>
+
         <script>
             function navigateTo(url) {
                 window.location.href = url;
             }
+            async function fetchRounds(year) {
+                const tableName = "{{ table_name }}";
+                if(tableName != "season_constructor_driver"){
+                const response = await fetch('/select_race', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ table_name: tableName, year: year })
+                });
+                const data = await response.json();
+                const roundContainer = document.getElementById('round-container');
+                const roundSelect = document.getElementById('round');
+                roundSelect.innerHTML = '<option value="" disabled selected>Select Round</option>';
+                console.log(data)
+                data.rounds.forEach(round => {
+                    const option = document.createElement('option');
+                    option.value = round;
+                    option.textContent = round;
+                    roundSelect.appendChild(option);
+                });
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const selectedYear = document.getElementById('year').value;
-                if (selectedYear) {
-                fetchChampionshipPoints(selectedYear);
+                roundContainer.style.display = 'block';
                 }
-            });
-            function fetchChampionshipPoints(year) {
-                fetch('/championship_points/' + year)
-                    .then(response => response.json())
-                    .then(data => {
-                        populateConstructorChampionship(data.constructor_standings);
-                        populateDriverChampionship(data.driver_standings);
-                    });
+                else{
+                    const tableName = "{{ table_name }}";
+                const year = document.getElementById('year').value;
+
+                const response = await fetch('/select_race', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ table_name: tableName, year: year})
+                });
+
+                const data = await response.text();
+                document.getElementById('data-container').innerHTML = data;
+                }
             }
 
-            function populateConstructorChampionship(standings) {
-                const constructorChampionshipTable = document.getElementById('constructor-championship').getElementsByTagName('tbody')[0];
-                constructorChampionshipTable.innerHTML = '';
-                standings.forEach(constructor => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${constructor[0]}</td>
-                        <td>${constructor[1]}</td>
-                        <td>${constructor[2]}</td>
-                    `;
-                    constructorChampionshipTable.appendChild(row);
-                });
-            }
+            async function fetchColumns() {
+                const tableName = "{{ table_name }}";
+                const year = document.getElementById('year').value;
+                const round = document.getElementById('round').value;
 
-            function populateDriverChampionship(standings) {
-                const driverChampionshipTable = document.getElementById('driver-championship').getElementsByTagName('tbody')[0];
-                driverChampionshipTable.innerHTML = '';
-                standings.forEach(driver => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${driver[0]}</td>
-                        <td>${driver[1]}</td>
-                        <td>${driver[2]}</td>
-                        <td>${driver[3]}</td>
-                    `;
-                    driverChampionshipTable.appendChild(row);
+                const response = await fetch('/view_race', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ table_name: tableName, year: year, round: round })
                 });
+
+                const data = await response.text();
+                document.getElementById('data-container').innerHTML = data;
             }
         </script>
     </body>
