@@ -77,11 +77,7 @@
                 document.querySelectorAll("button").forEach(button => {
                     button.addEventListener("click", () => {
                         const action = button.textContent.toLowerCase();
-                        if (action === "generate") {
-                            console.log("Calling endpoint: /generate");
-                            callEndpoint("/generate");
-                        } else {
-                            window.location.href = `select_${action}`;
+                        window.location.href = `select_${action}`;
                         }
                     });
                 });
