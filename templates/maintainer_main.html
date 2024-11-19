@@ -26,7 +26,7 @@
                 justify-content: space-evenly;
                 align-items: stretch;
                 align-content: stretch;
-                width: 45%;
+                width: 70%;
                 margin: auto;
             }
             button {
@@ -37,7 +37,7 @@
                 padding: 15%;
             }
             .out {
-                margin-left: 88%;
+                margin-left: 85%;
             }
         </style>
     </head>
@@ -47,14 +47,11 @@
             <a class="out" href="./">Sign out</a>
         </div>
 
-        <div id="main" class="flex-con">
-            <div class="tab">
+        <div id="main" class="tab">
+            <div class="flex-con">
                 <button>Insert</button>
                 <button>Delete</button>
-            </div>
-            <div class="tab">
                 <button>Update</button>
-                <button>Generate</button>
             </div>
         </div>
 
@@ -80,11 +77,7 @@
                 document.querySelectorAll("button").forEach(button => {
                     button.addEventListener("click", () => {
                         const action = button.textContent.toLowerCase();
-                        if (action === "generate") {
-                            console.log("Calling endpoint: /generate");
-                            callEndpoint("/generate");
-                        } else {
-                            window.location.href = `select_${action}`;
+                        window.location.href = `select_${action}`;
                         }
                     });
                 });

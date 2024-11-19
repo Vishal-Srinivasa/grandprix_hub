@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Driver Statistics</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --f1-red: #E22420;
+            --f1-light-red: #fcc;
+            --f1-hover-red: #ffcccc;
+        }
+        .hyper {
+                padding: 15px;
+                background-color: #E22420;
+            }
+            a {
+                margin: 1.5%;
+                text-decoration: none;
+                color: white;
+            }
+        body {
+            background-color: #f5f5f5;
+        }
+        
+        .navbar {
+            background-color: var(--f1-red);
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .table-container {
+            background-color: white;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+        
+        .form-select {
+            margin-bottom: 1rem;
+        }
+        
+        .stats-section {
+            margin-top: 2rem;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-section h3 {
+            color: var(--f1-red);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .stat-label {
+            font-weight: bold;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .stat-value {
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .error-message {
+            display: none;
+            color: var(--f1-red);
+            margin: 1rem 0;
+            padding: 1rem;
+            border: 1px solid var(--f1-red);
+            border-radius: 4px;
+            background-color: #fff5f5;
+        }
+        .out {
+                margin-left: 80%;
+            }
+    </style>
+</head>
+<body>
+    <div class="hyper">
+            <a href="../user_main">Home</a>
+            <a href="../" class="out">Sign out</a>
+    </div>
+
+    <div class="table-container">
+        <h2 class="mb-4">F1 Driver Statistics</h2>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <label for="driverSelect" class="form-label">Select Driver</label>
+                <select id="driverSelect" class="form-select" onchange="onSelectionChange()">
+                    <option value="" disabled selected>-- Select Driver --</option>
+                    {% for driver in drivers %}
+                    <option value="{{ driver }}">{{ driver }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <label for="year" class="form-label">Select Year</label>
+                <select id="year" class="form-select" onchange="onSelectionChange()">
+                    <option value="" disabled selected>-- Select Year --</option>
+                    {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-4" id="round-container" style="display: none;">
+                <label for="round" class="form-label">Select Round</label>
+                <select id="round" class="form-select" onchange="onRoundSelect()">
+                    <option value="" disabled selected>-- Select Round --</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="loading-spinner" class="loading-spinner">
+            <div class="spinner-border text-danger" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+
+        <div id="data-container" style="display: none;">
+            <div class="stats-section" id="race-results">
+                <h3>Race Results</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Position</div>
+                        <div class="stat-value" id="race-position"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Constructor</div>
+                        <div class="stat-value" id="race-constructor"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Laps</div>
+                        <div class="stat-value" id="race-laps"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="race-time"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Grid Position</div>
+                        <div class="stat-value" id="race-grid"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Points</div>
+                        <div class="stat-value" id="race-points"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section" id="qualifying-results">
+                <h3>Qualifying Results</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Position</div>
+                        <div class="stat-value" id="quali-position"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Constructor</div>
+                        <div class="stat-value" id="quali-constructor"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Q1 Time</div>
+                        <div class="stat-value" id="quali-q1"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Q2 Time</div>
+                        <div class="stat-value" id="quali-q2"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Q3 Time</div>
+                        <div class="stat-value" id="quali-q3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section" id="sprint-results">
+                <h3>Sprint Results</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Position</div>
+                        <div class="stat-value" id="sprint-position"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Constructor</div>
+                        <div class="stat-value" id="sprint-constructor"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Laps</div>
+                        <div class="stat-value" id="sprint-laps"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Points</div>
+                        <div class="stat-value" id="sprint-points"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section" id="pit-stops">
+                <h3>Pit Stops</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Number of Stops</div>
+                        <div class="stat-value" id="pit-stops-number"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Last Stop Lap</div>
+                        <div class="stat-value" id="pit-stops-lap"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Last Stop Time</div>
+                        <div class="stat-value" id="pit-stops-time"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section" id="driver-of-day">
+                <h3>Driver of the Day</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Position</div>
+                        <div class="stat-value" id="dotd-position"></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Percentage</div>
+                        <div class="stat-value" id="dotd-percentage"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showLoading() {
+            document.getElementById('loading-spinner').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-spinner').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error-message').style.display = 'none';
+        }
+
+        function formatValue(value) {
+            if (value === null || value === undefined || value === '') return 'N/A';
+            return value;
+        }
+
+        function updateStats(data) {
+            if (!data || data.length === 0) {
+                showError('No data available for this selection');
+                return;
+            }
+
+            const row = data[0];
+            
+            // Create structure for each section
+            const sections = {
+    'race-results': {
+        'Position': formatValue(row[0]),
+        'Constructor': formatValue(row[1]),
+        'Laps': formatValue(row[2]),
+        'Time': formatValue(row[3]),
+        'Time Penalty': formatValue(row[4]),
+        'Retired Reason': formatValue(row[5]),
+        'Points': formatValue(row[6]),
+        'Grid Position': formatValue(row[7])
+    },
+    'pit-stops': {
+        'Position': formatValue(row[8]),
+        'Stop Number': formatValue(row[9]),
+        'Lap': formatValue(row[10]),
+        'Time': formatValue(row[11])
+    },
+    'qualifying': {
+        'Position': formatValue(row[12]),
+        'Q1': formatValue(row[13]),
+        'Q2': formatValue(row[14]),
+        'Q3': formatValue(row[15]),
+        'Laps': formatValue(row[16])
+    },
+    'sprint-race': {
+        'Position': formatValue(row[17]),
+        'Laps': formatValue(row[18]),
+        'Time': formatValue(row[19]),
+        'Time Penalty': formatValue(row[20]),
+        'Retired Reason': formatValue(row[21]),
+        'Points': formatValue(row[22]),
+        'Grid Position': formatValue(row[23])
+    },
+    'sprint-qualifying': {
+        'Position': formatValue(row[24]),
+        'Q1': formatValue(row[25]),
+        'Q2': formatValue(row[26]),
+        'Q3': formatValue(row[27]),
+        'Laps': formatValue(row[28])
+    },
+    'driver-of-day': {
+        'Position': formatValue(row[29]),
+        'Percentage': formatValue(row[30]) !== 'N/A' 
+            ? formatValue(row[30]) + '%' 
+            : 'N/A'
+    }
+};
+
+
+            // Clear existing content
+            const dataContainer = document.getElementById('data-container');
+            dataContainer.innerHTML = '';
+
+            // Create sections
+            for (const [sectionId, sectionData] of Object.entries(sections)) {
+                const section = document.createElement('div');
+                section.className = 'stats-section';
+                
+                // Add section title
+                const title = document.createElement('h3');
+                title.textContent = sectionId.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+                section.appendChild(title);
+
+                // Create grid for stats
+                const grid = document.createElement('div');
+                grid.className = 'stats-grid';
+
+                // Add stats to grid
+                for (const [label, value] of Object.entries(sectionData)) {
+                    const item = document.createElement('div');
+                    item.className = 'stat-item';
+                    item.innerHTML = `
+                        <div class="stat-label">${label}</div>
+                        <div class="stat-value">${formatValue(value)}</div>
+                    `;
+                    grid.appendChild(item);
+                }
+
+                section.appendChild(grid);
+                dataContainer.appendChild(section);
+            }
+
+            dataContainer.style.display = 'block';
+        }
+
+        async function onSelectionChange() {
+            const driverSelect = document.getElementById('driverSelect');
+            const yearSelect = document.getElementById('year');
+            const roundContainer = document.getElementById('round-container');
+            const dataContainer = document.getElementById('data-container');
+
+            const selectedDriver = driverSelect.value;
+            const selectedYear = yearSelect.value;
+
+            hideError();
+            dataContainer.style.display = 'none';
+
+            if (selectedDriver && selectedYear) {
+                showLoading();
+                try {
+                    const response = await fetch(`/select_driver_and_race_stats/${selectedDriver}/${selectedYear}`);
+                    if (!response.ok) throw new Error('Failed to fetch rounds data');
+                    
+                    const data = await response.json();
+                    const roundSelect = document.getElementById('round');
+                    roundSelect.innerHTML = '<option value="" disabled selected>-- Select Round --</option>';
+
+                    data.rounds.forEach(round => {
+                        const option = document.createElement('option');
+                        option.value = round;
+                        option.text = `Round ${round}`;
+                        roundSelect.add(option);
+                    });
+
+                    roundContainer.style.display = 'block';
+                } catch (error) {
+                    showError('Failed to load rounds. Please try again.');
+                    roundContainer.style.display = 'none';
+                } finally {
+                    hideLoading();
+                }
+            } else {
+                roundContainer.style.display = 'none';
+            }
+        }
+
+        async function onRoundSelect() {
+            const driverSelect = document.getElementById('driverSelect');
+            const yearSelect = document.getElementById('year');
+            const roundSelect = document.getElementById('round');
+            const dataContainer = document.getElementById('data-container');
+
+            const selectedDriver = driverSelect.value;
+            const selectedYear = yearSelect.value;
+            const selectedRound = roundSelect.value;
+
+            hideError();
+
+            if (selectedDriver && selectedYear && selectedRound) {
+                showLoading();
+                try {
+                    const response = await fetch(`/get_driver_and_race_stats/${selectedDriver}/${selectedYear}/${selectedRound}`);
+                    if (!response.ok) throw new Error('Failed to fetch statistics');
+                    
+                    const data = await response.json();
+                    updateStats(data.data);
+                } catch (error) {
+                    showError('Failed to load statistics. Please try again.');
+                    dataContainer.style.display = 'none';
+                } finally {
+                    hideLoading();
+                }
+            } else {
+                dataContainer.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
