@@ -77,11 +77,10 @@
                 document.querySelectorAll("button").forEach(button => {
                     button.addEventListener("click", () => {
                         const action = button.textContent.toLowerCase();
-                        window.location.href = `select_${action}`;
+                        window.location.href = `./select_${action}`;
                         }
-                    });
-                });
-            }
+                    )});
+                };
 
             document.addEventListener("DOMContentLoaded", setupButtonListeners);
 
