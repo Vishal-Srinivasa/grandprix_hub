@@ -404,7 +404,7 @@ GRANT EXECUTE ON PROCEDURE grandprix_hub.get_driver_and_race_stats TO 'grandprix
 DELIMITER //
 
 CREATE TRIGGER check_sprint_fp_sessions
-BEFORE INSERT ON free_practice_results
+AFTER INSERT ON free_practice_results
 FOR EACH ROW
 BEGIN
   DECLARE is_sprint_weekend BOOLEAN;
@@ -414,15 +414,14 @@ BEGIN
     WHERE season = NEW.season AND round = NEW.round
   ) INTO is_sprint_weekend;
   
-  IF EXISTS (
-    SELECT 1 FROM free_practice_results 
+  IF is_sprint_weekend = TRUE AND NEW.number IN (2, 3) THEN
+    DELETE FROM free_practice_results 
     WHERE season = NEW.season 
     AND round = NEW.round 
-    AND number IN (2, 3)
-    AND number != NEW.number
-  ) THEN
+    AND number = NEW.number;
+    
     SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'Sprint weekends cannot have FP2 or FP3 sessions';
+    SET MESSAGE_TEXT = 'Record deleted: Sprint weekends cannot have FP2 or FP3 sessions';
   END IF;
 END //
 
