@@ -1,4 +1,4 @@
-**To view the DBMS_Report.pdf documentation for the project:**
+###To view the DBMS_Report.pdf documentation for the project:
 
 1. Open the DBMS_Report.pdf file.
 2. To access additional pages, click the "More Pages" button.
